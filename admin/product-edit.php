@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$imgId, $id]);
         $img = $stmt->fetch();
         if ($img) {
-            deleteFile('uploads/products/' . $img['image']);
             $pdo->prepare("DELETE FROM product_images WHERE id = ?")->execute([$imgId]);
+            deleteFile('uploads/products/' . $img['image']);
         }
         header("Location: product-edit.php?id=$id&deleted=1");
         exit;
@@ -53,10 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $mainImage = $product['main_image'];
+        $oldMainImage = null;
         if (!empty($_FILES['main_image']['name'])) {
             $upload = uploadImage($_FILES['main_image']);
             if ($upload['success']) {
-                deleteFile('uploads/products/' . $product['main_image']);
+                $oldMainImage = $product['main_image'];
                 $mainImage = $upload['filename'];
             } else {
                 $errors[] = $upload['error'];
@@ -66,6 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             $stmt = $pdo->prepare("UPDATE products SET name=?, slug=?, description=?, price=?, sale_price=?, main_image=?, stock_status=?, recommended=?, updated_at=NOW() WHERE id=?");
             $stmt->execute([$name, $slug, $description, $price, $sale_price > 0 ? $sale_price : null, $mainImage, $stock_status, $recommended, $id]);
+
+            if ($oldMainImage !== null) {
+                deleteFile('uploads/products/' . $oldMainImage);
+            }
 
             if (!empty($_FILES['additional_images']['name'][0])) {
                 foreach ($_FILES['additional_images']['tmp_name'] as $key => $tmp) {
@@ -165,6 +170,7 @@ include 'includes/header.php';
                         <div class="position-relative">
                             <img src="../uploads/products/<?= sanitize($img['image']) ?>" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" alt="">
                             <form method="POST" class="position-absolute" style="top:-5px;right:-5px;">
+                                <?= csrfField() ?>
                                 <input type="hidden" name="delete_image" value="<?= $img['id'] ?>">
                                 <button type="submit" class="btn btn-danger btn-sm rounded-circle" style="width:22px;height:22px;padding:0;font-size:11px;" onclick="return confirm('Delete this image?')">×</button>
                             </form>

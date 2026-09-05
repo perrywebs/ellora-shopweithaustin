@@ -14,9 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($field === 'smtp_password' && empty($value)) {
             continue;
         }
-        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY(setting_key) VALUES(setting_key, VALUES(setting_value))");
-        $stmt->execute([$field, $value]);
+        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->execute([$field, $value, $value]);
     }
+    header('Location: settings.php?saved=1');
+    exit;
+}
+
+if (isset($_GET['saved'])) {
     $success = 'Settings saved successfully.';
 }
 
