@@ -2,6 +2,8 @@
 requireAdmin();
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 $admin = getAdmin();
+$adminLogo = getSetting($pdo, 'site_logo');
+$adminLogoPath = $adminLogo ? '../' . $adminLogo : '../../images/logo.jpg';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,9 +13,9 @@ $admin = getAdmin();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - <?= $pageTitle ?? 'Dashboard' ?></title>
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="../../images/logo.jpg">
-    <link rel="shortcut icon" type="image/png" href="../../images/logo.jpg">
-    <link rel="apple-touch-icon" href="../../images/logo.jpg">
+    <link rel="icon" type="image/png" href="<?= sanitize($adminLogoPath) ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= sanitize($adminLogoPath) ?>">
+    <link rel="apple-touch-icon" href="<?= sanitize($adminLogoPath) ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>

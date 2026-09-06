@@ -7,6 +7,8 @@ if (!isset($pdo)) {
 }
 $sitePhone = getSetting($pdo, 'phone', '+(0) 123 458 985');
 $siteEmail = getSetting($pdo, 'contact_email', 'support@fashion.com');
+$siteLogo = getSetting($pdo, 'site_logo');
+$logoPath = $siteLogo ? $siteLogo : 'images/logo.jpg';
 $cartCount = 0;
 if (isset($_SESSION['cart'])) {
     foreach ($_SESSION['cart'] as $item) {
@@ -21,7 +23,7 @@ if (isset($_SESSION['cart'])) {
             <div class="header-action-box">
                 <!-- Logo Start -->
                 <a class="navbar-brand" href="index.php">
-                    <img src="images/logo.jpg" alt="ShopWithAustin">
+                    <img src="<?= sanitize($logoPath) ?>" alt="ShopWithAustin">
                 </a>
                 <!-- Logo End -->
 

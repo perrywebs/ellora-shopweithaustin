@@ -6,6 +6,8 @@ if (!isset($pdo)) {
     require_once __DIR__ . '/../config/db.php';
 }
 $siteName = getSetting($pdo, 'site_name', 'ShopWithAustin - Fashion & Lifestyle Store');
+$siteLogo = getSetting($pdo, 'site_logo');
+$logoPath = $siteLogo ? $siteLogo : 'images/logo.jpg';
 ?>
 <head>
 
@@ -31,13 +33,12 @@ $siteName = getSetting($pdo, 'site_name', 'ShopWithAustin - Fashion & Lifestyle 
     <link rel="canonical" href="<?= sanitize($siteUrl ?? '') ?>">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="images/logo.jpg">
-    <link rel="shortcut icon" type="image/png" href="images/logo.jpg">
-    <link rel="apple-touch-icon" href="images/logo.jpg">
+    <link rel="icon" type="image/png" href="<?= sanitize($logoPath) ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= sanitize($logoPath) ?>">
+    <link rel="apple-touch-icon" href="<?= sanitize($logoPath) ?>">
 
     <!-- Website Logo / Brand Image -->
-    <!-- Replace images/logo.jpg with your actual logo file -->
-    <link rel="preload" as="image" href="images/logo.jpg">
+    <link rel="preload" as="image" href="<?= sanitize($logoPath) ?>">
 
     <!-- Open Graph - Facebook / WhatsApp / LinkedIn -->
     <meta property="og:type" content="website">
@@ -45,14 +46,14 @@ $siteName = getSetting($pdo, 'site_name', 'ShopWithAustin - Fashion & Lifestyle 
     <meta property="og:title" content="<?= isset($pageTitle) ? sanitize($pageTitle) . ' - ' : '' ?><?= sanitize($siteName) ?>">
     <meta property="og:description" content="The best store to buy from. Shop quality products at great prices with a simple and convenient shopping experience.">
     <meta property="og:url" content="<?= sanitize($siteUrl ?? '') ?>">
-    <meta property="og:image" content="<?= sanitize(rtrim($siteUrl ?? '', '/') . '/images/logo.jpg') ?>">
+    <meta property="og:image" content="<?= sanitize(rtrim($siteUrl ?? '', '/') . '/' . $logoPath) ?>">
     <meta property="og:image:alt" content="<?= sanitize($siteName) ?>">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= isset($pageTitle) ? sanitize($pageTitle) . ' - ' : '' ?><?= sanitize($siteName) ?>">
     <meta name="twitter:description" content="The best store to buy from. Shop quality products at great prices with a simple and convenient shopping experience.">
-    <meta name="twitter:image" content="<?= sanitize(rtrim($siteUrl ?? '', '/') . '/images/logo.jpg') ?>">
+    <meta name="twitter:image" content="<?= sanitize(rtrim($siteUrl ?? '', '/') . '/' . $logoPath) ?>">
     <meta name="twitter:image:alt" content="<?= sanitize($siteName) ?>">
 
     <!-- Google Fonts -->

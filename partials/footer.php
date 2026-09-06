@@ -5,6 +5,8 @@ if (!isset($pdo)) {
     require_once __DIR__ . '/../config/db.php';
 }
 $footerSiteName = getSetting($pdo, 'site_name', 'ShopWithAustin');
+$footerLogo = getSetting($pdo, 'site_logo');
+$footerLogoPath = $footerLogo ? $footerLogo : 'images/logo.jpg';
 ?>
 <footer class="main-footer">
     <div class="container">
@@ -13,7 +15,7 @@ $footerSiteName = getSetting($pdo, 'site_name', 'ShopWithAustin');
                 <div class="footer-links-box">
                     <div class="footer-links">
                         <a href="index.php" class="footer-brand-logo">
-                            <img src="images/logo.jpg" alt="<?= sanitize($footerSiteName) ?>" style="max-width: 130px; margin-bottom: 15px;">
+                            <img src="<?= sanitize($footerLogoPath) ?>" alt="<?= sanitize($footerSiteName) ?>" style="max-width: 130px; margin-bottom: 15px;">
                         </a>
                     </div>
                     <div class="footer-links">
