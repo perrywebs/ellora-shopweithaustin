@@ -3,6 +3,11 @@ require_once __DIR__ . '/init.php';
 
 $newArrivals = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 8")->fetchAll();
 $recommended = $pdo->query("SELECT * FROM products WHERE recommended = 1 ORDER BY created_at DESC LIMIT 8")->fetchAll();
+$heroImage = getSetting($pdo, 'hero_image');
+$heroStyle = 'padding: 0px;';
+if ($heroImage) {
+    $heroStyle .= ' background: url(\'' . sanitize($heroImage) . '\') no-repeat; background-position: center center; background-size: contain;';
+}
 ?>
 <!DOCTYPE html>
 <html lang="zxx">
@@ -16,7 +21,7 @@ $recommended = $pdo->query("SELECT * FROM products WHERE recommended = 1 ORDER B
     <?php include 'partials/header.php'; ?>
 
     <!-- Hero Section Start -->
-    <div class="hero dark-section parallaxie" style="padding: 0px;">
+    <div class="hero dark-section parallaxie" style="<?= $heroStyle ?>">
         <div class="container">
             <div class="row">
                 <div class="col-lg-7">

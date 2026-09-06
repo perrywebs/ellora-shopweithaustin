@@ -306,7 +306,7 @@ $admin = getAdmin();
 <body>
     <div class="sidebar">
         <div class="sidebar-brand">
-            <a href="dashboard.php"><i class="fa-solid fa-store me-2"></i>Ellora Admin</a>
+            <a href="dashboard.php"><i class="fa-solid fa-store me-2"></i>Admin</a>
         </div>
         <div class="sidebar-menu">
             <a href="dashboard.php" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">

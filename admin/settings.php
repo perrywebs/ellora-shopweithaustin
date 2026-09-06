@@ -4,25 +4,65 @@ requireAdmin();
 
 $pageTitle = 'Settings';
 $success = '';
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
-    $fields = ['site_name', 'site_url', 'contact_email', 'phone', 'address', 'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption', 'from_email', 'from_name'];
-    
-    foreach ($fields as $field) {
-        $value = trim($_POST[$field] ?? '');
-        if ($field === 'smtp_password' && empty($value)) {
-            continue;
+
+    if (isset($_POST['action'])) {
+
+        if ($_POST['action'] === 'upload_hero') {
+            if (!isset($_FILES['hero_image']) || $_FILES['hero_image']['error'] === UPLOAD_ERR_NO_FILE) {
+                $error = 'No file selected.';
+            } else {
+                $result = uploadImage($_FILES['hero_image'], 'uploads/hero');
+                if ($result['success']) {
+                    $oldHero = getSetting($pdo, 'hero_image');
+                    if ($oldHero) {
+                        deleteFile($oldHero);
+                    }
+                    $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                    $stmt->execute(['hero_image', $result['path'], $result['path']]);
+                    header('Location: settings.php?saved=1');
+                    exit;
+                } else {
+                    $error = $result['error'];
+                }
+            }
         }
-        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmt->execute([$field, $value, $value]);
+
+        if ($_POST['action'] === 'remove_hero') {
+            $heroPath = getSetting($pdo, 'hero_image');
+            if ($heroPath) {
+                deleteFile($heroPath);
+                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                $stmt->execute(['hero_image', '', '']);
+            }
+            header('Location: settings.php?removed=1');
+            exit;
+        }
+
+        if ($_POST['action'] === 'save_settings') {
+            $fields = ['site_name', 'site_url', 'contact_email', 'phone', 'address', 'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption', 'from_email', 'from_name'];
+            foreach ($fields as $field) {
+                $value = trim($_POST[$field] ?? '');
+                if ($field === 'smtp_password' && empty($value)) {
+                    continue;
+                }
+                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                $stmt->execute([$field, $value, $value]);
+            }
+            header('Location: settings.php?saved=1');
+            exit;
+        }
     }
-    header('Location: settings.php?saved=1');
-    exit;
 }
 
 if (isset($_GET['saved'])) {
     $success = 'Settings saved successfully.';
+}
+if (isset($_GET['removed'])) {
+    $success = 'Hero image removed.';
 }
 
 include 'includes/header.php';
@@ -32,8 +72,52 @@ include 'includes/header.php';
     <div class="alert alert-success alert-custom"><?= $success ?></div>
 <?php endif; ?>
 
+<?php if ($error): ?>
+    <div class="alert alert-danger alert-custom"><?= $error ?></div>
+<?php endif; ?>
+
+<div class="form-section">
+    <h5>Hero Section</h5>
+    <?php $heroImage = getSetting($pdo, 'hero_image'); ?>
+    <?php if ($heroImage): ?>
+        <div class="mb-3">
+            <label class="form-label">Current Image</label><br>
+            <img src="../<?= sanitize($heroImage) ?>" alt="Hero Image" style="max-width: 400px; max-height: 250px; border-radius: 8px; border: 1px solid #e0e0e0; object-fit: cover;">
+        </div>
+    <?php else: ?>
+        <div class="mb-3">
+            <label class="form-label">Current Image</label><br>
+            <p class="text-muted" style="font-size: 14px; margin: 0;">No hero image uploaded. The default background will be used.</p>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" enctype="multipart/form-data" class="mb-3">
+        <?= csrfField() ?>
+        <input type="hidden" name="action" value="upload_hero">
+        <div class="row align-items-end">
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Choose New Image</label>
+                <input type="file" name="hero_image" class="form-control" accept=".jpg,.jpeg,.png,.webp" required>
+                <small class="text-muted">Allowed: JPG, JPEG, PNG, WEBP. Max 5MB.</small>
+            </div>
+            <div class="col-md-6 mb-2">
+                <button type="submit" class="btn-admin btn-admin-primary"><i class="fa-solid fa-upload me-1"></i> Upload &amp; Save</button>
+            </div>
+        </div>
+    </form>
+
+    <?php if ($heroImage): ?>
+        <form method="POST">
+            <?= csrfField() ?>
+            <input type="hidden" name="action" value="remove_hero">
+            <button type="submit" class="btn-admin btn-admin-sm" style="background: #dc3545; color: #fff;" onclick="return confirm('Remove the current hero image?')"><i class="fa-solid fa-trash me-1"></i> Remove Image</button>
+        </form>
+    <?php endif; ?>
+</div>
+
 <form method="POST">
     <?= csrfField() ?>
+    <input type="hidden" name="action" value="save_settings">
     <div class="form-section">
         <h5>General Settings</h5>
         <div class="row">
